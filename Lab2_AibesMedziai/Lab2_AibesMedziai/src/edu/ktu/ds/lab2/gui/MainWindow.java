@@ -1,8 +1,9 @@
 package edu.ktu.ds.lab2.gui;
 
-import edu.ktu.ds.lab2.demo.Car;
-import edu.ktu.ds.lab2.demo.CarsGenerator;
-import edu.ktu.ds.lab2.demo.SimpleBenchmark;
+import edu.ktu.ds.lab2.utils.BstSet;
+import edu.ktu.ds.lab2.vaitkevicius.Book;
+import edu.ktu.ds.lab2.vaitkevicius.BooksGenerator;
+import edu.ktu.ds.lab2.vaitkevicius.SimpleBenchmark;
 import edu.ktu.ds.lab2.utils.ParsableAvlSet;
 import edu.ktu.ds.lab2.utils.ParsableBstSet;
 import edu.ktu.ds.lab2.utils.ParsableSortedSet;
@@ -83,8 +84,8 @@ public class MainWindow extends BorderPane implements EventHandler<ActionEvent> 
     private MainWindowMenu mainWindowMenu;
     private final Stage stage;
 
-    private static ParsableSortedSet<Car> carsSet;
-    private CarsGenerator carsGenerator = new CarsGenerator();
+    private static ParsableSortedSet<Book> booksSet;
+    private BooksGenerator booksGenerator = new BooksGenerator();
 
     private int sizeOfInitialSubSet, sizeOfGenSet, sizeOfLeftSubSet;
     private double shuffleCoef;
@@ -121,8 +122,14 @@ public class MainWindow extends BorderPane implements EventHandler<ActionEvent> 
                         MESSAGES.getString("button4"),
                         MESSAGES.getString("button5"),
                         MESSAGES.getString("button6"),
-                        MESSAGES.getString("button7")},
-                2, 4);
+                        MESSAGES.getString("button7"),
+                        MESSAGES.getString("button8"),
+                        MESSAGES.getString("button9"),
+                        MESSAGES.getString("button10"),
+                        MESSAGES.getString("button11"),
+                        MESSAGES.getString("button12"),
+                        MESSAGES.getString("button13")},
+                2, 8);
         disableButtons(true);
         //======================================================================
         // Formuojama pirmoji parametrų lentelė (žalia). Naudojama klasė Panels.
@@ -290,12 +297,149 @@ public class MainWindow extends BorderPane implements EventHandler<ActionEvent> 
             treeEfficiency();
         } else if (source.equals(paneButtons.getButtons().get(4))) {
             treeRemove();
-        } else if (source.equals(paneButtons.getButtons().get(5))
-                || source.equals(paneButtons.getButtons().get(6))) {
+        } else if (source.equals(paneButtons.getButtons().get(5))) {
+            addAll();
+         } else if (source.equals(paneButtons.getButtons().get(6))){
+            higher();
+         } else if (source.equals(paneButtons.getButtons().get(7))){
+            pollLast();
+         } else if (source.equals(paneButtons.getButtons().get(8))){
+            lower();
+         } else if (source.equals(paneButtons.getButtons().get(9))){
+            retainAll();
+         } else if (source.equals(paneButtons.getButtons().get(10))){
+            headSet();
+         } else if (source.equals(paneButtons.getButtons().get(11))){
+            setMethods();
+         } else if (source.equals(paneButtons.getButtons().get(12))){
+            DepthComparedToElements();
+         } 
+    }
+    
+    private void addAll() {
+        ParsableBstSet<Book> newSet = (ParsableBstSet<Book>) booksSet;
+        BstSet<Book> elementsToAdd = new BstSet<>();
+        Arrays.stream(booksGenerator.generateShuffle(3, 3, shuffleCoef)).forEach(elementsToAdd::add);
+        KsGui.oun(taOutput, "Elementai, kuriuos prides");
+        KsGui.oun(taOutput, elementsToAdd.toVisualizedString(tfDelimiter.getText()));
+        if (booksSet.isEmpty()) {
+            KsGui.ounerr(taOutput, MESSAGES.getString("setIsEmpty"));
+        } else {
+            newSet.addAll(elementsToAdd);
+            KsGui.oun(taOutput, newSet.toVisualizedString(tfDelimiter.getText()));
+        }
+    }
+    
+    private void higher() {
+        ParsableBstSet<Book> testSet = (ParsableBstSet<Book>) booksSet;
+        Book higher = testSet.higher((Book) booksSet.toArray()[new Random().nextInt(booksSet.size())]);
+        try
+        {
+            KsGui.oun(taOutput, higher, "higher metodas:");
+        }
+        catch(Exception e)
+        {
+            KsGui.oun(taOutput, "Nerastas elementas");
+        }
+    }
+    
+    private void pollLast() {
+        ParsableBstSet<Book> testSet = (ParsableBstSet<Book>) booksSet;
+        
+        KsGui.oun(taOutput, testSet.toVisualizedString(tfDelimiter.getText()), "Pries pollLast() metodo:");
+        if (testSet.isEmpty()) {
+            KsGui.ounerr(taOutput, MESSAGES.getString("setIsEmpty"));
+            return;
+        }
+        Book books = testSet.pollLast();
+        
+        KsGui.oun(taOutput, testSet.toVisualizedString(tfDelimiter.getText()), "Po pollLast() metodo:");
+    }
+    
+    private void lower() {
+        
+        ParsableBstSet<Book> testSet = (ParsableBstSet<Book>) booksSet;
+        Book lower = testSet.lower((Book) booksSet.toArray()[new Random().nextInt(booksSet.size())]);
+        try
+        {
+            KsGui.oun(taOutput, lower, "lower metodas:");
+        }
+        catch(Exception e)
+        {
+            KsGui.oun(taOutput, "Nerastas elementas");
+        }
+    }
+    
+    private void retainAll() {
+        ParsableBstSet<Book> newSet = (ParsableBstSet<Book>) booksSet;
+        BstSet<Book> elementsToAdd = new BstSet<>();
+        elementsToAdd.add(newSet.first());
+        //Arrays.stream(booksGenerator.generateShuffle(3, 3, shuffleCoef)).forEach(elementsToAdd::add);
+        KsGui.oun(taOutput, "Elementai, kuriuos lygins");
+        KsGui.oun(taOutput, elementsToAdd.toVisualizedString(tfDelimiter.getText()));
+        if (booksSet.isEmpty()) {
+            KsGui.ounerr(taOutput, MESSAGES.getString("setIsEmpty"));
+        } else {
+            KsGui.oun(taOutput, "Set, pries retainAll()");
+            KsGui.oun(taOutput, newSet.toVisualizedString(tfDelimiter.getText()));
+            newSet.retainAll(elementsToAdd);
+            KsGui.oun(taOutput, "Set, po retainAll()");
+            KsGui.oun(taOutput, newSet.toVisualizedString(tfDelimiter.getText()));
+        }
+    }
+    
+    private void headSet() {
+        ParsableBstSet<Book> testSet = (ParsableBstSet<Book>) booksSet;
+        edu.ktu.ds.lab2.utils.SortedSet<Book> sortedSet;
+        Book end = (Book)testSet.toArray()[(int)booksSet.size()/2];
+        
+        KsGui.oun(taOutput, "Vidurinis");
+        KsGui.oun(taOutput, end.ToString_data1());
+        if (testSet.isEmpty()) {
+            KsGui.ounerr(taOutput, MESSAGES.getString("setIsEmpty"));
+        } else {
             KsGui.setFormatStartOfLine(true);
-            KsGui.ounerr(taOutput, MESSAGES.getString("notImplemented"));
+            KsGui.oun(taOutput, "Po Metodo: ");
+            sortedSet = testSet.headSet(end, true);
+            KsGui.oun(taOutput, sortedSet.toVisualizedString(tfDelimiter.getText()));
             KsGui.setFormatStartOfLine(false);
         }
+    }
+    
+    private void setMethods() {
+        KsGui.setFormatStartOfLine(true);
+        ParsableBstSet<Book> testSet = (ParsableBstSet<Book>) booksSet;
+        Book start = testSet.first();
+        Book end = (Book)testSet.toArray()[(int)booksSet.size()/2];
+        edu.ktu.ds.lab2.utils.Set<Book> headSet = booksSet.headSet(end);
+        edu.ktu.ds.lab2.utils.Set<Book> tailSet = booksSet.tailSet(start);
+        edu.ktu.ds.lab2.utils.Set<Book> subSet = booksSet.subSet(start,end);
+        KsGui.oun(taOutput, start, "Set metodu pradzia. Startinis elementas:");
+        KsGui.oun(taOutput, end, "Vidurinis dvejetainio medzio elementas:");
+        KsGui.oun(taOutput, headSet.toVisualizedString(tfDelimiter.getText()), "headSet(). Argumentas: vidurinis:");
+        KsGui.oun(taOutput, tailSet.toVisualizedString(tfDelimiter.getText()), "tailSet(). Argumentas: startinis:");
+        KsGui.oun(taOutput, subSet.toVisualizedString(tfDelimiter.getText()), "subSet()");
+        KsGui.setFormatStartOfLine(false);
+    }
+    
+    private void DepthComparedToElements() {
+    KsGui.setFormatStartOfLine(true);
+        BstSet<Book> bst = new BstSet<>(Book.byPrice);
+        Book[] books = booksGenerator.generateShuffle(10000, 10000, shuffleCoef);
+        KsGui.oun(taOutput, books.length);
+        for(int i = 0; i < books.length; i++)
+        {
+            bst.add(books[i]);
+        }
+        
+        KsGui.oun(taOutput, "Elementu kiekio kiekviename medzio gylyje tyrimas. Dydis: " + bst.size());
+        ArrayList<Integer> bstArray = bst.depthCount();
+        KsGui.oun(taOutput, "Gylis      BST");
+        for(int i = 0; i<20; i++)
+        {
+            KsGui.oun(taOutput, String.format("%5d      %3d", i, bstArray.get(i)));
+        }
+        KsGui.setFormatStartOfLine(false);
     }
 
     private void treeGeneration(String filePath) throws ValidationException {
@@ -305,30 +449,30 @@ public class MainWindow extends BorderPane implements EventHandler<ActionEvent> 
         // cmbTreeType objekte
         createTree();
 
-        Car[] carsArray;
+        Book[] booksArray;
         // Jei failas nenurodytas - generuojama
         if (filePath == null) {
-            carsArray = carsGenerator.generateShuffle(sizeOfGenSet, sizeOfInitialSubSet, shuffleCoef);
+            booksArray = booksGenerator.generateShuffle(sizeOfGenSet, sizeOfInitialSubSet, shuffleCoef);
             paneParam1.getTfOfTable().get(2).setText(String.valueOf(sizeOfLeftSubSet));
         } else { // Skaitoma is failo
-            carsSet.load(filePath);
-            carsArray = new Car[carsSet.size()];
+            booksSet.load(filePath);
+            booksArray = new Book[booksSet.size()];
             int i = 0;
-            for (Object o : carsSet.toArray()) {
-                carsArray[i++] = (Car) o;
+            for (Object o : booksSet.toArray()) {
+                booksArray[i++] = (Book) o;
             }
             // Skaitant iš failo išmaišoma standartiniu Collections.shuffle metodu.
-            Collections.shuffle(Arrays.asList(carsArray), new Random());
+            Collections.shuffle(Arrays.asList(booksArray), new Random());
         }
 
         // Išmaišyto masyvo elementai surašomi i aibę
-        carsSet.clear();
-        Arrays.stream(carsArray).forEach(carsSet::add);
+        booksSet.clear();
+        Arrays.stream(booksArray).forEach(booksSet::add);
 
         // Išvedami rezultatai
         // Nustatoma, kad eilutės pradžioje neskaičiuotų išvedamų eilučių skaičiaus
         KsGui.setFormatStartOfLine(true);
-        KsGui.oun(taOutput, carsSet.toVisualizedString(tfDelimiter.getText()),
+        KsGui.oun(taOutput, booksSet.toVisualizedString(tfDelimiter.getText()),
                 MESSAGES.getString("setInTree"));
         // Nustatoma, kad eilutės pradžioje skaičiuotų išvedamų eilučių skaičių
         KsGui.setFormatStartOfLine(false);
@@ -337,35 +481,35 @@ public class MainWindow extends BorderPane implements EventHandler<ActionEvent> 
 
     private void treeAdd() throws ValidationException {
         KsGui.setFormatStartOfLine(true);
-        Car car = carsGenerator.takeCar();
-        carsSet.add(car);
+        Book book = booksGenerator.takeBook();
+        booksSet.add(book);
         paneParam1.getTfOfTable().get(2).setText(String.valueOf(--sizeOfLeftSubSet));
-        KsGui.oun(taOutput, car, MESSAGES.getString("setAdd"));
-        KsGui.oun(taOutput, carsSet.toVisualizedString(tfDelimiter.getText()));
+        KsGui.oun(taOutput, book, MESSAGES.getString("setAdd"));
+        KsGui.oun(taOutput, booksSet.toVisualizedString(tfDelimiter.getText()));
         KsGui.setFormatStartOfLine(false);
     }
 
     private void treeRemove() {
         KsGui.setFormatStartOfLine(true);
-        if (carsSet.isEmpty()) {
+        if (booksSet.isEmpty()) {
             KsGui.ounerr(taOutput, MESSAGES.getString("setIsEmpty"));
-            KsGui.oun(taOutput, carsSet.toVisualizedString(tfDelimiter.getText()));
+            KsGui.oun(taOutput, booksSet.toVisualizedString(tfDelimiter.getText()));
         } else {
-            int nr = new Random().nextInt(carsSet.size());
-            Car car = (Car) carsSet.toArray()[nr];
-            carsSet.remove(car);
-            KsGui.oun(taOutput, car, MESSAGES.getString("setRemoval"));
-            KsGui.oun(taOutput, carsSet.toVisualizedString(tfDelimiter.getText()));
+            int nr = new Random().nextInt(booksSet.size());
+            Book book = (Book) booksSet.toArray()[nr];
+            booksSet.remove(book);
+            KsGui.oun(taOutput, book, MESSAGES.getString("setRemoval"));
+            KsGui.oun(taOutput, booksSet.toVisualizedString(tfDelimiter.getText()));
         }
         KsGui.setFormatStartOfLine(false);
     }
 
     private void treeIteration() {
         KsGui.setFormatStartOfLine(true);
-        if (carsSet.isEmpty()) {
+        if (booksSet.isEmpty()) {
             KsGui.ounerr(taOutput, MESSAGES.getString("setIsEmpty"));
         } else {
-            KsGui.oun(taOutput, carsSet, MESSAGES.getString("setIterator"));
+            KsGui.oun(taOutput, booksSet, MESSAGES.getString("setIterator"));
         }
         KsGui.setFormatStartOfLine(false);
     }
@@ -431,10 +575,10 @@ public class MainWindow extends BorderPane implements EventHandler<ActionEvent> 
     private void createTree() throws ValidationException {
         switch (cmbTreeType.getSelectionModel().getSelectedIndex()) {
             case 0:
-                carsSet = new ParsableBstSet<>(Car::new);
+                booksSet = new ParsableBstSet<>(Book::new);
                 break;
             case 1:
-                carsSet = new ParsableAvlSet<>(Car::new);
+                booksSet = new ParsableAvlSet<>(Book::new);
                 break;
             default:
                 disableButtons(true);
@@ -443,7 +587,7 @@ public class MainWindow extends BorderPane implements EventHandler<ActionEvent> 
     }
 
     private void disableButtons(boolean disable) {
-        for (int i : new int[]{1, 2, 4, 5, 6}) {
+        for (int i : new int[]{1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}) {
             if (i < paneButtons.getButtons().size() && paneButtons.getButtons().get(i) != null) {
                 paneButtons.getButtons().get(i).setDisable(disable);
             }

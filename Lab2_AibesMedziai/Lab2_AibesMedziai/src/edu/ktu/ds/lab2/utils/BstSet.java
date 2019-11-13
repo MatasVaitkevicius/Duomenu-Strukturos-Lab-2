@@ -1,5 +1,7 @@
 package edu.ktu.ds.lab2.utils;
 
+import edu.ktu.ds.lab2.vaitkevicius.Book;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Stack;
@@ -9,9 +11,9 @@ import java.util.Stack;
  * medžiu.
  *
  * @param <E> Aibės elemento tipas. Turi tenkinti interfeisą Comparable<E>, arba
- *            per klasės konstruktorių turi būti paduodamas Comparator<E> interfeisą
- *            tenkinantis objektas.
- * 
+ * per klasės konstruktorių turi būti paduodamas Comparator<E> interfeisą
+ * tenkinantis objektas.
+ *
  * @author darius.matulis@ktu.lt
  * @užduotis Peržiūrėkite ir išsiaiškinkite pateiktus metodus.
  */
@@ -182,7 +184,7 @@ public class BstSet<E extends Comparable<E>> implements SortedSet<E>, Cloneable 
 
         return null;
     }
-
+    
     /**
      * Pašalina maksimalaus rakto elementą paiešką pradedant mazgu node
      *
@@ -344,7 +346,13 @@ public class BstSet<E extends Comparable<E>> implements SortedSet<E>, Cloneable 
      */
     @Override
     public Set<E> headSet(E element) {
-        throw new UnsupportedOperationException("Studentams reikia realizuoti headSet()");
+        Set<E> set = new BstSet<E>((Comparator<? super E>) Book.byPrice);
+       
+        recursiveAdd(-1, set, root, element);
+       
+        return set;
+
+//        throw new UnsupportedOperationException("Studentams reikia realizuoti headSet()");
     }
 
     /**
@@ -356,7 +364,14 @@ public class BstSet<E extends Comparable<E>> implements SortedSet<E>, Cloneable 
      */
     @Override
     public Set<E> subSet(E element1, E element2) {
-        throw new UnsupportedOperationException("Studentams reikia realizuoti subSet()");
+        //We can write subSet between elements as:
+        //element1 <= this < element2
+        //or as (element1 < this AND this < element2) + element1
+        //which is equal to headSet of a tailSaet of this or other way around
+         Set<E> subSet = ((BstSet)headSet(element2)).tailSet(element1);
+         subSet.add(element1);
+         return subSet;
+        //        throw new UnsupportedOperationException("Studentams reikia realizuoti subSet()");
     }
 
     /**
@@ -367,9 +382,218 @@ public class BstSet<E extends Comparable<E>> implements SortedSet<E>, Cloneable 
      */
     @Override
     public Set<E> tailSet(E element) {
-        throw new UnsupportedOperationException("Studentams reikia realizuoti tailSet()");
+        Set<E> set = new BstSet<E> ((Comparator<? super E>) Book.byPrice);
+       
+        recursiveAdd(1, set, root, element);
+        
+        if(this.contains(element)) set.add(element);
+        
+        return set;
+//        throw new UnsupportedOperationException("Studentams reikia realizuoti tailSet()");
     }
 
+    //if does not contain, remove
+    public boolean retainAll(BstSet<E> c)
+    {
+        if(c==null) return false;
+        for(Object o : this)
+        {
+            if(!c.contains((E)o))
+            {
+                this.remove((E)o);
+            }
+        }
+        return true;
+    }
+
+    public SortedSet<E> headSet(E toElement, boolean inclusive) {
+        SortedSet<E> set = new BstSet<E>();
+       
+        if(inclusive && this.contains(toElement))
+        {
+            set.add(toElement);
+        }
+        recursiveAdd(-1, set, root, toElement);
+        return set;
+    }
+    
+    public int Height(BstNode subroot)
+    {
+        if(root==null)
+        {
+            return 0;
+        }
+        int lheight = 0;
+        int rheight = 0;
+        if(subroot.left != null)
+        {
+            lheight = Height(subroot.left);
+        }
+        if(subroot.right != null)
+        {
+            rheight = Height(subroot.right);
+        }
+        if(rheight >= lheight)
+        {
+            return rheight + 1;
+        }
+        else return lheight + 1;
+    }
+
+    public E higher(E e) {
+    
+        if(root==null) return null;
+        BstNode<E> checkable = root;
+        E saved = null;
+        while(checkable!=null)
+        {
+            if(checkable.element.compareTo(e) == -1 || checkable.element.compareTo(e) == 0)
+            {
+                if(checkable.right != null)
+                {
+                    checkable = checkable.right;
+                    continue;
+                }
+                return saved;
+            }
+            else
+            {
+                saved = checkable.element;
+                if(checkable.left!=null)
+                {
+                    checkable = checkable.left;
+                    continue;
+                }
+                return saved;
+            }
+        }
+        return saved;
+    }
+
+    public E lower(E e) {
+        
+        if(root==null) return null;
+        
+        BstNode<E> checkable = root;
+        E saved = null;
+        while(checkable!=null)
+        {
+            if(checkable.element.compareTo(e) == 1 || checkable.element.compareTo(e) == 0)
+            {
+                if(checkable.left!=null)
+                {
+                    checkable = checkable.left;
+                    continue;
+                }
+                return saved;
+             }
+             else
+             {
+                saved = checkable.element;
+                if(checkable.right!=null)
+                {
+                    checkable = checkable.right;
+                    continue;
+                }
+                return saved;
+             }
+        }
+        return saved;
+    }
+
+    public boolean addAll(BstSet<? extends E> c) {
+        boolean ats = true;
+        BstNode<E> n = (BstNode<E>) c.root;
+        addAllRecursive(n, ats);
+        return ats;
+    }
+
+    private void addAllRecursive(BstNode<? extends E> node, boolean ats) {
+        if (node == null) {
+            return;
+        }
+        if (get(node.element) == null) {
+            add(node.element);
+        } else {
+            ats = false;
+        }
+        addAllRecursive(node.left, ats);
+        addAllRecursive(node.right, ats);
+    }
+    
+        public void recursiveAdd(int comparatorParam, Set<E> set, BstNode<E> newParent, E toCompare)
+    {
+        //if comparatorParam=1, check newParent > toCompare
+        //if comparatorParam=-1 check newParent < toCompare
+        int cmp = newParent.element.compareTo(toCompare); 
+        if(cmp == comparatorParam)
+        {
+            set.add(newParent.element);
+            //check for childs and add them accordingly to the same criteria
+            if(newParent.left != null)
+            {
+                recursiveAdd(comparatorParam, set, newParent.left, toCompare);
+            }
+            if(newParent.right != null)
+            {
+                recursiveAdd(comparatorParam, set, newParent.right, toCompare);
+            }
+        }
+        //even if it didn't satisfy the comparing param, there MIGHT be something left
+        else
+        {
+            //if we're checking for newParent > toCompare, there might be a right element that would satisfy this:
+            //newParent.right > toCompare
+            if(comparatorParam == 1 && newParent.right != null)
+            {
+                recursiveAdd(comparatorParam, set, newParent.right, toCompare);
+            }
+            //conversely there might be a left element which if we're checking for newParent < toCompare, satisfies:
+            //newParent.left < toCompare
+            else if(comparatorParam == -1 && newParent.left != null)
+            {
+                recursiveAdd(comparatorParam, set, newParent.left, toCompare);
+            }
+        }
+    }
+        
+    public ArrayList<Integer> depthCount()
+    {
+        ArrayList<Integer> counts = new ArrayList<>();
+        for(int i = 0; i < 50; i++)
+        {
+            counts.add(0); //preparing for realistic depth scenarios
+        }
+        
+        recursiveCount(root, 0, counts);
+        return counts;
+    }
+    
+    public void recursiveCount(BstNode<E> parent, int depth, ArrayList<Integer> counts)
+    {
+        counts.set(depth, counts.get(depth) +1);
+        if(parent.left!=null) recursiveCount(parent.left, depth+1, counts);
+        if(parent.right!=null) recursiveCount(parent.right, depth+1, counts);
+    }
+
+    public E pollLast() {
+        E ats = getMax(root).element;
+        remove(ats);
+
+        return ats;
+    }
+    
+    public E first()
+    {
+        if(root==null) return null;
+        BstNode<E> next = root;
+        while(next.left!=null)
+        {
+            next = next.left;
+        }
+        return next.element;
+    }
+    
     /**
      * Grąžinamas tiesioginis iteratorius.
      *
@@ -430,11 +654,48 @@ public class BstSet<E extends Comparable<E>> implements SortedSet<E>, Cloneable 
                 return null;
             }
         }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("Studentams reikia realizuoti remove()");
+        
+    private BstNode<E> removeRecursive(E element, BstNode<E> node) {
+        if (node == null) {
+            return node;
         }
+        // Medyje ieškomas šalinamas elemento mazgas;
+        int cmp = c.compare(element, node.element);
+
+        if (cmp < 0) {
+            node.left = removeRecursive(element, node.left);
+        } else if (cmp > 0) {
+            node.right = removeRecursive(element, node.right);
+        } else if (node.left != null && node.right != null) {
+            /* Atvejis kai šalinamas elemento mazgas turi abu vaikus.
+             Ieškomas didžiausio rakto elemento mazgas kairiajame pomedyje.
+             Galima kita realizacija kai ieškomas mažiausio rakto
+             elemento mazgas dešiniajame pomedyje. Tam yra sukurtas
+             metodas getMin(E element);
+             */
+            BstNode<E> nodeMax = getMax(node.left);
+            /* Didžiausio rakto elementas (TIK DUOMENYS!) perkeliamas į šalinamo
+             elemento mazgą. Pats mazgas nėra pašalinamas - tik atnaujinamas;
+             */
+            node.element = nodeMax.element;
+            // Surandamas ir pašalinamas maksimalaus rakto elemento mazgas;
+            node.left = removeMax(node.left);
+            size--;
+            // Kiti atvejai
+        } else {
+            node = (node.left != null) ? node.left : node.right;
+            size--;
+        }
+
+        return node;
+    }
+
+       // @Override
+       // public void remove() {
+            // stack.remove(parent);
+               // stack.pop();
+//            throw new UnsupportedOperationException("Studentams reikia realizuoti remove()");
+        //}
 
         private void toStack(BstNode<E> n) {
             while (n != null) {
@@ -442,6 +703,7 @@ public class BstSet<E extends Comparable<E>> implements SortedSet<E>, Cloneable 
                 n = (ascending) ? n.left : n.right;
             }
         }
+
     }
 
     /**

@@ -73,12 +73,48 @@ public class AvlSet<E extends Comparable<E>> extends BstSet<E>
      * @param element
      */
     @Override
-    public void remove(E element) {
-        throw new UnsupportedOperationException("Studentams reikia realizuoti remove(E element)");
+    public void remove(E element) {      
+        if (element == null) {
+            throw new IllegalArgumentException("Element is null in remove(E element)");
+        }
+
+        root = removeRecursive(element, (AVLNode<E>) root);
     }
 
-    private AVLNode<E> removeRecursive(E element, AVLNode<E> n) {
-        throw new UnsupportedOperationException("Studentams reikia realizuoti removeRecursive(E element, AVLNode<E> n)");
+    private AVLNode<E> removeRecursive(E element, AVLNode<E> node) {
+        if (node == null) {
+            return node;
+        }
+        // Medyje ieškomas šalinamas elemento mazgas;
+        int cmp = c.compare(element, node.element);
+
+        if (cmp < 0) {
+            node.setLeft(removeRecursive(element, (AVLNode)node.getLeft()));
+            if ((height(node.getRight()) - height(node.getLeft())) == 2) {
+                int cmp2 = c.compare(node.getRight().element, element);
+                node = (cmp2 < 0) ? leftRotation(node) : doubleLeftRotation(node);
+            }
+        } else if (cmp > 0) {
+            node.setRight(removeRecursive(element, (AVLNode)node.getRight()));
+            if ((height(node.getLeft()) - height(node.getRight())) == 2) {
+                int cmp2 = c.compare(element, node.getLeft().element);
+                node = (cmp2 < 0) ? rightRotation(node) : doubleRightRotation(node);
+            }
+        } else if (node.left != null && node.right != null) {
+            node.element = ((AVLNode<E>)getMax(node.getLeft())).element;
+            node.setLeft(removeRecursive(node.element,node.getLeft()));
+            if ((height(node.getRight()) - height(node.getLeft())) == 2) {
+                int cmp2 = c.compare(element, node.getRight().element);
+                node = (cmp2 < 0) ? doubleLeftRotation(node) : leftRotation(node);
+            }
+        } else {
+            node = ((AVLNode)node.left != null) ? (AVLNode)node.left : (AVLNode)node.right;
+            size--;
+        }
+        if(node != null){
+            node.height = Math.max(height(node.getLeft()), height(node.getRight()))+1;
+        }
+        return node;
     }
 
     // Papildomi privatūs metodai, naudojami operacijų su aibe realizacijai
