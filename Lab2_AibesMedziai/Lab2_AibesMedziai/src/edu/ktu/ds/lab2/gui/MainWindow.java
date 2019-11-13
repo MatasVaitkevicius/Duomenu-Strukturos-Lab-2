@@ -373,6 +373,7 @@ public class MainWindow extends BorderPane implements EventHandler<ActionEvent> 
     private void retainAll() {
         ParsableBstSet<Book> newSet = (ParsableBstSet<Book>) booksSet;
         BstSet<Book> elementsToAdd = new BstSet<>();
+        elementsToAdd.add((Book)newSet.toArray()[(int)booksSet.size()/2]);
         elementsToAdd.add(newSet.first());
         //Arrays.stream(booksGenerator.generateShuffle(3, 3, shuffleCoef)).forEach(elementsToAdd::add);
         KsGui.oun(taOutput, "Elementai, kuriuos lygins");
@@ -410,10 +411,10 @@ public class MainWindow extends BorderPane implements EventHandler<ActionEvent> 
         KsGui.setFormatStartOfLine(true);
         ParsableBstSet<Book> testSet = (ParsableBstSet<Book>) booksSet;
         Book start = testSet.first();
-        Book end = (Book)testSet.toArray()[(int)booksSet.size()/2];
-        edu.ktu.ds.lab2.utils.Set<Book> headSet = booksSet.headSet(end);
-        edu.ktu.ds.lab2.utils.Set<Book> tailSet = booksSet.tailSet(start);
-        edu.ktu.ds.lab2.utils.Set<Book> subSet = booksSet.subSet(start,end);
+        Book end = (Book)testSet.toArray()[(int)testSet.size()/2];
+        edu.ktu.ds.lab2.utils.Set<Book> headSet = testSet.headSet(end);
+        edu.ktu.ds.lab2.utils.Set<Book> tailSet = testSet.tailSet(start);
+        edu.ktu.ds.lab2.utils.Set<Book> subSet = testSet.subSet(start, end);
         KsGui.oun(taOutput, start, "Set metodu pradzia. Startinis elementas:");
         KsGui.oun(taOutput, end, "Vidurinis dvejetainio medzio elementas:");
         KsGui.oun(taOutput, headSet.toVisualizedString(tfDelimiter.getText()), "headSet(). Argumentas: vidurinis:");
@@ -424,7 +425,7 @@ public class MainWindow extends BorderPane implements EventHandler<ActionEvent> 
     
     private void DepthComparedToElements() {
     KsGui.setFormatStartOfLine(true);
-        BstSet<Book> bst = new BstSet<>(Book.byPrice);
+        BstSet<Book> bst = new BstSet<>();
         Book[] books = booksGenerator.generateShuffle(10000, 10000, shuffleCoef);
         KsGui.oun(taOutput, books.length);
         for(int i = 0; i < books.length; i++)

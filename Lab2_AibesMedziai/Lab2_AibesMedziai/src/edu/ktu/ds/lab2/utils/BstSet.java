@@ -346,7 +346,7 @@ public class BstSet<E extends Comparable<E>> implements SortedSet<E>, Cloneable 
      */
     @Override
     public Set<E> headSet(E element) {
-        Set<E> set = new BstSet<E>((Comparator<? super E>) Book.byPrice);
+        Set<E> set = new BstSet<E>();
        
         recursiveAdd(-1, set, root, element);
        
@@ -382,7 +382,7 @@ public class BstSet<E extends Comparable<E>> implements SortedSet<E>, Cloneable 
      */
     @Override
     public Set<E> tailSet(E element) {
-        Set<E> set = new BstSet<E> ((Comparator<? super E>) Book.byPrice);
+        Set<E> set = new BstSet<E>();
        
         recursiveAdd(1, set, root, element);
         
